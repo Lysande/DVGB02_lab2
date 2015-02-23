@@ -3,13 +3,14 @@
 #include "Stud.h"
 #include <string.h>
 
-#define DEBUG 1
+#define DEBUG 0
 #define A_SIDE 0
 #define B_SIDE 1
 #define TIMER_INTERVAL 50
 
 int acks = 0;
 int seq_num=0;
+int lastsentseqnum = 1;
 //TODO
 struct pkt p;
 
@@ -76,7 +77,8 @@ void A_input(struct pkt packet)
     stoptimer(A_SIDE);
      //TODO
     seq_num=!seq_num;
-  
+    acks++;
+  if(DEBUG)printf("acks:%d\n",acks);
    }
    else
    {
@@ -134,7 +136,13 @@ void B_input(struct pkt packet)
     if(DEBUG)printf("ack sent\n");
     printf("B deliver:");
     print_payload(packet.payload);
-    tolayer5(B_SIDE,packet.payload);
+    
+    if (lastsentseqnum != seq_num) 
+    {
+      tolayer5(B_SIDE,packet.payload); 
+      lastsentseqnum = seq_num;
+    }
+    
     send_ack(seq_num);
   } 
 }

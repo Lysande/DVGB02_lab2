@@ -10,6 +10,7 @@
 
 int acks = 0;
 int seq_num=0;
+int lastsentseqnum = 1;
 //TODO
 struct pkt p;
 
@@ -135,7 +136,13 @@ void B_input(struct pkt packet)
     if(DEBUG)printf("ack sent\n");
     printf("B deliver:");
     print_payload(packet.payload);
-    tolayer5(B_SIDE,packet.payload);
+    
+    if (lastsentseqnum != seq_num) 
+    {
+      tolayer5(B_SIDE,packet.payload); 
+      lastsentseqnum = seq_num;
+    }
+    
     send_ack(seq_num);
   } 
 }
